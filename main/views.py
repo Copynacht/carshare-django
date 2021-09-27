@@ -1,8 +1,8 @@
 import datetime
-from rest_framework.viewsets import ModelViewSet, generics
+from rest_framework.viewsets import generics, ModelViewSet
 from rest_framework import viewsets, mixins
 from .models import CarModel, ReservationModel, Account
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from .serializers import CarSerializer, ReservationSerializer, AccountSerializer
 from .filters import ReservationFilter
 from django.db import transaction
@@ -53,6 +53,13 @@ class UserMyPage(generics.RetrieveUpdateAPIView):
             'email': request.user.email,
         },
             status=status.HTTP_200_OK)
+
+
+class AccountListView(mixins.ListModelMixin,
+                      viewsets.GenericViewSet):
+    permission_classes = (IsAdminUser,)
+    queryset = Account.objects.all()
+    serializer_class = AccountSerializer
 
 
 class CarViewSet(ModelViewSet):
@@ -112,6 +119,9 @@ class ReservationViewSet(mixins.ListModelMixin,
     def returncar(self, request, pk=None):
         so = request.data["start_odometer"]
         eo = request.data["end_odometer"]
+        if int(eo) < int(so):
+            return Response('利用開始前距離が返却後距離より長いです',
+                            status=status.HTTP_400_BAD_REQUEST)
         if request.method == 'PATCH':
             reservation = self.get_object()
             if reservation.user == request.user:
@@ -120,6 +130,9 @@ class ReservationViewSet(mixins.ListModelMixin,
                 if serializer.is_valid():
                     serializer.save()
                     rewrite = CarModel.objects.get(id=reservation.car.id)
+                    if rewrite.odometer > int(so):
+                        return Response('利用開始前距離が車に記録されている距離より短いです',
+                                        status=status.HTTP_400_BAD_REQUEST)
                     rewrite.per_use = rewrite.per_use + 1
                     rewrite.odometer = eo
                     rewrite.save()
