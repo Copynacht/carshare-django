@@ -1,13 +1,13 @@
-from django.conf.urls import url
+from django.urls import re_path
 from rest_framework import routers
 from .views import AccountRegister, UserMyPage, CarViewSet, ReservationViewSet, AccountListView
 
 router = routers.DefaultRouter()
-router.register(r'car', CarViewSet)
-router.register(r'reservation', ReservationViewSet)
-router.register(r'user', AccountListView)
+router.register('car', CarViewSet)
+router.register('reservation', ReservationViewSet)
+router.register('user', AccountListView)
 
 urlpatterns = [
-    url(r'^register/$', AccountRegister.as_view()),
-    url(r'^mypage/$', UserMyPage.as_view()),
+    re_path('register', AccountRegister.as_view()),
+    re_path('mypage', UserMyPage.as_view()),
 ]

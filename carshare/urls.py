@@ -1,16 +1,17 @@
-from django.conf.urls import include, url
+from django.urls import include, re_path
 from django.contrib import admin
 from main.urls import router
 from . import settings
-from rest_framework_jwt.views import obtain_jwt_token
-from django.contrib.staticfiles.urls import static
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+)
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^login/', obtain_jwt_token),
-    url(r'^user/', include('main.urls')),
-    url(r'^api/', include(router.urls)),
+    re_path('admin/', admin.site.urls),
+    re_path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    re_path('user/', include('main.urls')),
+    re_path('api/', include(router.urls)),
 ]
 
 urlpatterns += staticfiles_urlpatterns()
@@ -18,5 +19,5 @@ urlpatterns += staticfiles_urlpatterns()
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns += (
-        url(r'^debug_toolbar/', include(debug_toolbar.urls)),
+        re_path(r'^debug_toolbar/', include(debug_toolbar.urls)),
     )

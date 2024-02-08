@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'main.apps.MainConfig',
     'django_filters',
     'corsheaders',
-    'rest_framework_jwt',
+    'rest_framework_simplejwt'
 ]
 
 MIDDLEWARE = [
@@ -118,7 +118,9 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication', 
     ),
     'NON_FIELD_ERRORS_KEY': 'detail',
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',

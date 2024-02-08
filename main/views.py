@@ -13,7 +13,7 @@ from django.db.models import Q
 from rest_framework import status
 from rest_framework.decorators import action
 from datetime import timezone, timedelta
-from django.http import FileResponse
+from django.http import Http404, FileResponse
 
 JST = timezone(timedelta(hours=+9), 'JST')
 
@@ -215,7 +215,7 @@ class ReservationViewSet(mixins.ListModelMixin,
         with open(file.name, "w") as csvfile:
             fieldnames = [
                 "名前",
-                "車種"
+                "車種",
                 "開始日時",
                 "返却日時",
                 "走行距離",
@@ -224,6 +224,16 @@ class ReservationViewSet(mixins.ListModelMixin,
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             for r in reservations:
+                status = ""
+                if r.status == 0:
+                    status = "予約中"
+                if r.status == 1:
+                    status = "予約キャンセル"
+                if r.status == 2:
+                    status = "返却"
+                if r.status == 3:
+                    status = "事故"
+
                 writer.writerow(
                     {
                         "名前": r.user.username,
@@ -231,7 +241,7 @@ class ReservationViewSet(mixins.ListModelMixin,
                         "開始日時": r.start_date_time,
                         "返却日時": r.end_date_time,
                         "走行距離": r.end_odometer-r.start_odometer,
-                        "返却ステータス": r.status
+                        "返却ステータス": status
                     }
                 )
 
