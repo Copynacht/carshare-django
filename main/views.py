@@ -14,6 +14,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from datetime import timezone, timedelta
 from django.http import Http404, FileResponse
+from dateutil.relativedelta import relativedelta
 
 JST = timezone(timedelta(hours=+9), 'JST')
 
@@ -203,7 +204,7 @@ class ReservationCsvExport(viewsets.ModelViewSet):
     
     @action(methods=["get"], detail=False)
     def csv_export(self, request):
-        queryset = super(ReservationCsvExport, self).get_queryset().order_by('-start_date_time')
+        queryset = super(ReservationCsvExport, self).get_queryset().filter(set_date__lt=datetime.date.today() - relativedelta(year=1)).order_by('-start_date_time')
         file = self._create_export_customer_csv(queryset)
         filename = (
             "MMT予約データ.csv"
