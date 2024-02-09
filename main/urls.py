@@ -1,10 +1,11 @@
 from django.urls import re_path
 from rest_framework import routers
-from .views import AccountRegister, UserMyPage, CarViewSet, ReservationViewSet, AccountListView
+from .views import AccountRegister, UserMyPage, CarViewSet, ReservationViewSet, AccountListView, ReservationCsvExport
 
 router = routers.DefaultRouter()
 router.register('car', CarViewSet)
 router.register('reservation', ReservationViewSet)
+router.register('data', ReservationCsvExport)
 router.register('user', AccountListView)
 
 urlpatterns = [
