@@ -204,7 +204,7 @@ class ReservationCsvExport(viewsets.ModelViewSet):
     
     @action(methods=["get"], detail=False)
     def csv_export(self, request):
-        queryset = super(ReservationCsvExport, self).get_queryset().filter(set_date__lt=datetime.date.today() - relativedelta(year=1)).order_by('-start_date_time')
+        queryset = super(ReservationCsvExport, self).get_queryset().filter(start_date_time__lt=datetime.date.today() - relativedelta(year=1)).order_by('-start_date_time')
         file = self._create_export_customer_csv(queryset)
         filename = (
             "MMT予約データ.csv"
