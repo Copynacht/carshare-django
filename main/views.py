@@ -195,61 +195,6 @@ class ReservationViewSet(mixins.ListModelMixin,
             else:
                 return Response('異なるユーザーの予約です', status=status.HTTP_400_BAD_REQUEST)
 
-    @action(methods=["get"], detail=False)
-    def csv_export(self, request):
-        queryset = self.get_queryset()
-        file = self._create_export_customer_csv(queryset)
-        filename = (
-            "MMT予約データ.csv"
-        )
-        response = FileResponse(
-            open(file.name, "rb"),
-            as_attachment=True,
-            content_type="application/csv",
-            filename=filename,
-        )
-        return response
-
-    def _create_export_customer_csv(self, reservations):
-        file = tempfile.NamedTemporaryFile(delete=False)
-        with open(file.name, "w") as csvfile:
-            fieldnames = [
-                "名前",
-                "車種",
-                "開始日時",
-                "返却日時",
-                "走行距離",
-                "返却ステータス",
-            ]
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-            for r in reservations:
-                status = ""
-                if r.status == 0:
-                    status = "予約中"
-                if r.status == 1:
-                    status = "予約キャンセル"
-                if r.status == 2:
-                    status = "返却"
-                if r.status == 3:
-                    status = "事故"
-                if r.user == None:
-                    continue
-                writer.writerow(
-                    {
-                        "名前": r.user.username,
-                        "車種": r.car.name,
-                        "開始日時": r.start_date_time,
-                        "返却日時": r.end_date_time,
-                        "走行距離": r.end_odometer-r.start_odometer,
-                        "返却ステータス": status
-                    }
-                )
-
-        file.seek(0)
-        return file
-
-
 class ReservationCsvExport(viewsets.ModelViewSet):
     permission_classes = (AllowAny,)
     queryset = ReservationModel.objects.all()
