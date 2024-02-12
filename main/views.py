@@ -14,13 +14,11 @@ from rest_framework import status
 from rest_framework.decorators import action
 from datetime import timezone, timedelta
 from django.http import Http404, FileResponse
-from dateutil.relativedelta import relativedelta
+from django_filters.rest_framework import DjangoFilterBackend
 
 JST = timezone(timedelta(hours=+9), 'JST')
 
 # ユーザ作成のView(POST)
-
-
 class AccountRegister(generics.CreateAPIView):
     permission_classes = (AllowAny,)
     queryset = Account.objects.all()
@@ -79,11 +77,11 @@ class ReservationViewSet(mixins.ListModelMixin,
     permission_classes = (IsAuthenticated,)
     queryset = ReservationModel.objects.all()
     serializer_class = ReservationSerializer
-    filter_class = ReservationFilter
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ReservationFilter
 
     def get_queryset(self):
-        q = super(ReservationViewSet, self).get_queryset().order_by(
-            '-start_date_time')
+        q = super(ReservationViewSet, self).get_queryset().order_by('-start_date_time')
         if(self.request.query_params.get('my', None)):
             return q.filter(user=self.request.user.id)
         return q
@@ -204,7 +202,7 @@ class ReservationCsvExport(viewsets.ModelViewSet):
     
     @action(methods=["get"], detail=False)
     def csv_export(self, request):
-        queryset = super(ReservationCsvExport, self).get_queryset().filter(start_date_time__lt=datetime.date.today() - relativedelta(year=1)).order_by('-start_date_time')
+        queryset = super(ReservationCsvExport, self).get_queryset().order_by('-start_date_time')
         file = self._create_export_customer_csv(queryset)
         filename = (
             "MMT予約データ.csv"

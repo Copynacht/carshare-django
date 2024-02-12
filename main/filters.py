@@ -1,12 +1,12 @@
-from django_filters import rest_framework as filters
+import django_filters
 from .models import ReservationModel
 
 
-class ReservationFilter(filters.FilterSet):
-    user = filters.NumberFilter(field_name='user', lookup_expr='exact')
-    car = filters.NumberFilter(field_name='car', lookup_expr='exact')
-    status = filters.NumberFilter(field_name='status', lookup_expr='exact')
-    pay = filters.BooleanFilter(field_name='pay')
+class ReservationFilter(django_filters.FilterSet):
+    user = django_filters.NumberFilter(field_name='user__id', lookup_expr='exact')
+    car = django_filters.NumberFilter(field_name='car__id', lookup_expr='exact')
+    status = django_filters.NumberFilter(field_name='status', lookup_expr='exact')
+    pay = django_filters.BooleanFilter(field_name='pay')
 
     class Meta:
         model = ReservationModel
